@@ -56,7 +56,6 @@ export const getBacaChapter = async (req, res) => {
     const totalImages = $(".chapterInfo").attr("valuegambar") || images.length.toString();
     const publishDate = $("time[property='datePublished']").attr("datetime") || $("time").first().text().trim();
 
-    // FIX: prev/next fallback lebih aman
     let prevChapterLink = $(".nxpr a.rl[href*='-chapter-']").attr("href") || "";
     let nextChapterLink = $(".nxpr a.rr[href*='-chapter-']").attr("href") || "";
 
