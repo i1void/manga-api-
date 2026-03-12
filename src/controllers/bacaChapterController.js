@@ -11,14 +11,21 @@ export const getBacaChapter = async (req, res) => {
     const $ = load(html);
 
     const title = $("#Judul h1").text().trim();
-    const mangaTitleEl = $("#Judul p a b");
+
+    // FIX: ambil elemen kedua (index 1) bukan semua breadcrumb
+    const mangaTitleEl = $("#Judul p a b").eq(1);
     const mangaTitle = mangaTitleEl.text().trim();
     const mangaLink = mangaTitleEl.parent().attr("href");
     const mangaSlug = (mangaLink?.match(/\/manga\/([^/]+)/) || [])[1] || "";
 
-    const description =
-      $("#Description").first().contents().filter(function () { return this.type === "text"; }).text().trim()
-      + " " + $("#Description b").first().text().trim();
+    // FIX: ambil hanya teks langsung di #Description, hindari teks navigasi
+    const descText = [];
+    $("#Description").first().contents().each((i, el) => {
+      if (el.type === "text" && $(el).text().trim()) {
+        descText.push($(el).text().trim());
+      }
+    });
+    const description = descText.join(" ");
 
     const chapterInfo = {};
     $("#Judul table.tbl tbody tr").each((i, el) => {
@@ -49,14 +56,17 @@ export const getBacaChapter = async (req, res) => {
     const totalImages = $(".chapterInfo").attr("valuegambar") || images.length.toString();
     const publishDate = $("time[property='datePublished']").attr("datetime") || $("time").first().text().trim();
 
-    // Prev / Next chapter
+    // FIX: prev/next fallback lebih aman
     let prevChapterLink = $(".nxpr a.rl[href*='-chapter-']").attr("href") || "";
     let nextChapterLink = $(".nxpr a.rr[href*='-chapter-']").attr("href") || "";
 
     if (!nextChapterLink) {
       $(".nxpr a[href*='-chapter-']").each((i, el) => {
         const href = $(el).attr("href");
-        if (href !== prevChapterLink) { nextChapterLink = href; return false; }
+        if (href && href !== prevChapterLink) {
+          nextChapterLink = href;
+          return false;
+        }
       });
     }
 
@@ -73,7 +83,7 @@ export const getBacaChapter = async (req, res) => {
       images,
       meta: {
         chapterNumber: chapter,
-        totalImages: parseInt(totalImages) || 0,
+        totalImages: parseInt(totalImages) || images.length,
         publishDate,
         slug,
       },
