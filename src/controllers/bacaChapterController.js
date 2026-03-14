@@ -12,13 +12,11 @@ export const getBacaChapter = async (req, res) => {
 
     const title = $("#Judul h1").text().trim();
 
-    // FIX: ambil elemen kedua (index 1) bukan semua breadcrumb
     const mangaTitleEl = $("#Judul p a b").eq(1);
     const mangaTitle = mangaTitleEl.text().trim();
     const mangaLink = mangaTitleEl.parent().attr("href");
     const mangaSlug = (mangaLink?.match(/\/manga\/([^/]+)/) || [])[1] || "";
 
-    // FIX: ambil hanya teks langsung di #Description, hindari teks navigasi
     const descText = [];
     $("#Description").first().contents().each((i, el) => {
       if (el.type === "text" && $(el).text().trim()) {
@@ -38,12 +36,7 @@ export const getBacaChapter = async (req, res) => {
     $("#Baca_Komik img").each((i, el) => {
       const src = $(el).attr("src");
       const id = $(el).attr("id");
-      if (
-        src && id &&
-        (src.includes("komiku.org/upload") ||
-          src.includes("cdn.komiku.org/upload") ||
-          src.includes("img.komiku.org/upload"))
-      ) {
+      if (src && src.includes("komiku.org/upload")) {
         images.push({
           src,
           alt: $(el).attr("alt"),

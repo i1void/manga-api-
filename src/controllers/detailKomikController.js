@@ -10,18 +10,23 @@ export const getDetailKomik = async (req, res) => {
     const html = await fetchPage(url);
     const $ = load(html);
 
-    const title = $("h1 span[itemprop='name']").text().trim();
-    const alternativeTitle = $("p.j2").text().trim();
-    const description = $("p.desc").text().trim();
-    const sinopsis = $("section#Sinopsis p").text().trim();
-    const thumbnail = $("section#Informasi div.ims img").attr("src");
-
+    // Parse info dulu biar bisa jadi fallback title
     const info = {};
     $("section#Informasi table.inftable tr").each((i, el) => {
       const key = $(el).find("td").first().text().trim();
       const value = $(el).find("td").last().text().trim();
       if (key) info[key] = value;
     });
+
+    const title = $("h1 span[itemprop='name']").text().trim()
+      || $("h1").first().text().trim()
+      || info['Judul Komik']
+      || '';
+
+    const alternativeTitle = $("p.j2").text().trim();
+    const description = $("p.desc").text().trim();
+    const sinopsis = $("section#Sinopsis p").text().trim();
+    const thumbnail = $("section#Informasi div.ims img").attr("src");
 
     const genres = [];
     $("section#Informasi ul.genre li").each((i, el) => {
