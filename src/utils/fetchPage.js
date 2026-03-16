@@ -14,6 +14,16 @@ export const getRandomDelay = () =>
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+export const cleanThumbnail = (url) => {
+  if (!url) return "";
+  try {
+    const u = new URL(url);
+    return u.origin + u.pathname;
+  } catch {
+    return url;
+  }
+};
+
 export const fetchPage = async (url, config = {}) => {
   try {
     const response = await axios.get(url, {
