@@ -1,5 +1,5 @@
 import { load } from "cheerio";
-import { fetchPage } from "../utils/fetchPage.js";
+import { fetchPage, cleanThumbnail } from "../utils/fetchPage.js";
 
 const BASE_URL = "https://komiku.org";
 
@@ -20,7 +20,7 @@ function scrapeSection($, sectionId) {
       ? originalLinkPath
       : originalLinkPath ? `${BASE_URL}${originalLinkPath}` : null;
 
-    let thumbnail = imgEl.attr("data-src") || imgEl.attr("src");
+    const thumbnail = cleanThumbnail(imgEl.attr("data-src") || imgEl.attr("src"));
     const infoText = detailEl.find(".ls2t").text().trim();
 
     let genre = "", readers = "";

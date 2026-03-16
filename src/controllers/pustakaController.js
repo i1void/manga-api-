@@ -1,5 +1,5 @@
 import { load } from "cheerio";
-import { fetchApi, extractSlug, formatChapterUrl } from "../utils/fetchPage.js";
+import { fetchApi, extractSlug, formatChapterUrl, cleanThumbnail } from "../utils/fetchPage.js";
 
 const API_URL = "https://api.komiku.org";
 
@@ -18,7 +18,7 @@ export const getPustaka = async (req, res) => {
 
       results.push({
         title: $(el).find(".kan h3").text().trim(),
-        thumbnail: $(el).find(".bgei img").attr("src") || "",
+        thumbnail: cleanThumbnail($(el).find(".bgei img").attr("src") || ""),
         type: $(el).find(".tpe1_inf b").text().trim(),
         genre: $(el).find(".tpe1_inf").text().replace($(el).find(".tpe1_inf b").text(), "").trim(),
         slug, url,

@@ -1,5 +1,5 @@
 import { load } from "cheerio";
-import { fetchPage } from "../utils/fetchPage.js";
+import { fetchPage, cleanThumbnail } from "../utils/fetchPage.js";
 
 const BASE_URL = "https://komiku.org";
 
@@ -24,7 +24,7 @@ export const getTerbaru = async (req, res) => {
         ? originalLinkPath
         : originalLinkPath ? `${BASE_URL}${originalLinkPath}` : null;
 
-      let thumbnail = imgElement.attr("data-src") || imgElement.attr("src");
+      const thumbnail = cleanThumbnail(imgElement.attr("data-src") || imgElement.attr("src"));
 
       const typeGenreTimeString = detailElement.find("span.ls4s").text().trim();
       let type = "Unknown", genre = "Unknown", updateTime = "Unknown";

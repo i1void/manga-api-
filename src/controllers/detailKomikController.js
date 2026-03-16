@@ -1,5 +1,5 @@
 import { load } from "cheerio";
-import { fetchPage } from "../utils/fetchPage.js";
+import { fetchPage, cleanThumbnail } from "../utils/fetchPage.js";
 
 const BASE_URL = "https://komiku.org";
 
@@ -10,7 +10,6 @@ export const getDetailKomik = async (req, res) => {
     const html = await fetchPage(url);
     const $ = load(html);
 
-    // Parse info dulu biar bisa jadi fallback title
     const info = {};
     $("section#Informasi table.inftable tr").each((i, el) => {
       const key = $(el).find("td").first().text().trim();
@@ -26,14 +25,13 @@ export const getDetailKomik = async (req, res) => {
     const alternativeTitle = $("p.j2").text().trim();
     const description = $("p.desc").text().trim();
     const sinopsis = $("section#Sinopsis p").text().trim();
-    const thumbnail = $("section#Informasi div.ims img").attr("src");
+    const thumbnail = cleanThumbnail($("section#Informasi div.ims img").attr("src"));
 
     const genres = [];
     $("section#Informasi ul.genre li").each((i, el) => {
       genres.push($(el).text().trim());
     });
 
-    // First & Latest chapter
     const firstChapterLink = $("#Judul div.new1:contains('Awal:') a").attr("href");
     const latestChapterLink = $("#Judul div.new1:contains('Terbaru:') a").attr("href");
 
@@ -46,7 +44,6 @@ export const getDetailKomik = async (req, res) => {
     const firstChapterInfo = extractChapter(firstChapterLink);
     const latestChapterInfo = extractChapter(latestChapterLink);
 
-    // All chapters
     const chapters = [];
     $("table#Daftar_Chapter tbody tr").each((i, el) => {
       if ($(el).find("th").length > 0) return;
@@ -64,16 +61,16 @@ export const getDetailKomik = async (req, res) => {
       });
     });
 
-    // Similar komik
     const similarKomik = [];
     $("section#Spoiler div.grd").each((i, el) => {
       try {
         const title = $(el).find("div.h4").text().trim();
         const link = $(el).find("a").attr("href");
-        let thumbnail = $(el).find("img").attr("src") || "";
-        if ($(el).find("img").hasClass("lazy") || thumbnail.includes("lazy.jpg")) {
-          thumbnail = $(el).find("img").attr("data-src") || thumbnail;
+        let rawThumb = $(el).find("img").attr("src") || "";
+        if ($(el).find("img").hasClass("lazy") || rawThumb.includes("lazy.jpg")) {
+          rawThumb = $(el).find("img").attr("data-src") || rawThumb;
         }
+        const thumbnail = cleanThumbnail(rawThumb);
         const type = $(el).find("div.tpe1_inf b").text().trim();
         const genres = $(el).find("div.tpe1_inf").text().replace(type, "").trim();
         const synopsis = $(el).find("p").text().trim();

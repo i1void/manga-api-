@@ -1,7 +1,6 @@
 import { load } from "cheerio";
-import { fetchPage } from "../utils/fetchPage.js";
+import { fetchPage, cleanThumbnail, getRandomUserAgent } from "../utils/fetchPage.js";
 import axios from "axios";
-import { getRandomUserAgent } from "../utils/fetchPage.js";
 
 const BASE_URL = "https://komiku.org";
 
@@ -13,7 +12,7 @@ function parseResults($, results) {
 
       const mangaLink = bgei.find("a").attr("href") || "";
       const slug = mangaLink.replace("/manga/", "").replace(/\/$/, "");
-      const thumbnail = kan.find("img").attr("src") || bgei.find("img").attr("src") || "";
+      const thumbnail = cleanThumbnail(kan.find("img").attr("src") || bgei.find("img").attr("src") || "");
       const title = kan.find("h3").text().trim();
       const altTitle = kan.find(".judul2").text().trim();
       const description = kan.find("p").text().trim();
@@ -46,7 +45,6 @@ export const getSearch = async (req, res) => {
     const $ = load(html);
     let results = [];
 
-    // Try HTMX method first
     const htmxElement = $(".daftar span[hx-get]");
     if (htmxElement.length > 0) {
       const htmxUrl = htmxElement.attr("hx-get");

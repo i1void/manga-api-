@@ -1,5 +1,5 @@
 import { load } from "cheerio";
-import { fetchPage, fetchApi } from "../utils/fetchPage.js";
+import { fetchPage, fetchApi, cleanThumbnail } from "../utils/fetchPage.js";
 
 const BASE_URL = "https://komiku.org";
 const API_URL = "https://api.komiku.org";
@@ -48,7 +48,7 @@ export const getGenreRekomendasi = async (req, res) => {
       const readLinkPath = $(el).find(".ls3p a").attr("href");
       const originalLinkPath = anchorTag.attr("href");
 
-      let thumbnail = imgTag.attr("src") || imgTag.attr("data-src");
+      const thumbnail = cleanThumbnail(imgTag.attr("src") || imgTag.attr("data-src"));
 
       let slug = "";
       if (originalLinkPath) {
@@ -87,14 +87,13 @@ export const getGenreDetail = async (req, res) => {
     const $ = load(html);
     const results = [];
 
-    let mangaElements = $(".bge");
-
-    mangaElements.each((i, el) => {
+    $(".bge").each((i, el) => {
       const mangaLink = $(el).find(".bgei a").attr("href") || "";
       const mangaSlug = (mangaLink.match(/\/manga\/([^/]+)/) || [])[1] || "";
 
-      let thumbnail = $(el).find(".bgei img").attr("src")
-        || $(el).find(".bgei img").attr("data-src") || "";
+      const thumbnail = cleanThumbnail(
+        $(el).find(".bgei img").attr("src") || $(el).find(".bgei img").attr("data-src") || ""
+      );
 
       const title = $(el).find(".kan h3").text().trim();
       const type = $(el).find(".tpe1_inf b").text().trim();

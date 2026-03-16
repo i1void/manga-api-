@@ -1,5 +1,5 @@
 import { load } from "cheerio";
-import { fetchPage } from "../utils/fetchPage.js";
+import { fetchPage, cleanThumbnail } from "../utils/fetchPage.js";
 
 const BASE_URL = "https://komiku.org";
 
@@ -21,7 +21,7 @@ export const getRekomendasi = async (req, res) => {
         ? originalLinkPath
         : originalLinkPath ? `${BASE_URL}${originalLinkPath}` : null;
 
-      let thumbnail = imgTag.attr("data-src") || imgTag.attr("src");
+      const thumbnail = cleanThumbnail(imgTag.attr("data-src") || imgTag.attr("src"));
 
       let slug = "";
       if (originalLinkPath) {
